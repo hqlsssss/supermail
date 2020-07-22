@@ -41,8 +41,11 @@
   import Scroll from "components/common/scroll/Scroll";
   import BackTop from "components/content/backTop/BackTop";
 
+
   import {getHomeMultidata,getHomeGoods} from "network/home";
   import {debounce} from "common/utils";
+  import {itemListenerMixin,backTopMixin} from "common/mixin";
+  import {BACK_POSITION} from "common/const";
 
 
   export default {
@@ -57,6 +60,7 @@
       Scroll,
       BackTop
     },
+    mixins:[itemListenerMixin,backTopMixin],
     data(){
       return{
         banners:[],
@@ -67,10 +71,11 @@
           'sell':{page:0,list:[]}
         },
         currentType:'pop',
-        isShowBackTop: false,
+        // isShowBackTop: false,
         tabOffsetTop:0,
         isTabFixed:false,
-        saveY:0
+        saveY:0,
+        // itemImgListener:null
       }
     },
     computed:{
@@ -90,6 +95,8 @@
     deactivated() {
       this.saveY=this.$refs.scroll.getScrollY()
       console.log(this.saveY);
+    //  取消全局事件监听
+      this.$bus.$off('ItemImageLoad',this.itemImgListener)
     },
     created() {
       //组件创建完成发送网络请求
@@ -103,14 +110,17 @@
 
     },
     mounted() {
-      //  监听item中图片加载完成
-      const refresh=debounce(this.$refs.scroll.refresh)
-      this.$bus.$on('ItemImageLoad',()=>{
-        refresh()
-      })
+      //  监听item中图片加载完成,防抖操作
+      // let newRefresh=debounce(this.$refs.scroll.refresh,100)
+      // //对监听事件进行保存
+      // this.itemImgListener=()=>{
+      //   newRefresh()
+      // }
+      // this.$bus.$on('ItemImageLoad',this.itemImgListener)
       //获取tab-control的offset
       //所有的组件都有一个$el属性，用于获取数组中的元素
-
+      console.log('mounted');
+      this.tabClick(0)
     },
     methods:{
 
@@ -146,13 +156,13 @@
         this.$refs.tabControl1.currentIndex=index
         this.$refs.tabControl2.currentIndex=index
       },
-      backClick(){
-        //500毫秒之内滚到顶部
-        this.$refs.scroll.scrollTo(0,0)
-      },
+      // backClick(){
+      //   //500毫秒之内滚到顶部
+      //   this.$refs.scroll.scrollTo(0,0)
+      // },
       contentScroll(position){
         // console.log(position);判断backTop是否显示
-        this.isShowBackTop = (-position.y) > 1000
+        this.isShowBackTop = (-position.y) > BACK_POSITION
       //  决定tabControl是否吸顶（position:fixed）
         this.isTabFixed=(-position.y)>this.tabOffsetTop
       },

@@ -13,7 +13,7 @@
           :src="item"
           alt
           :key="index"
-          @load="imgload"
+          @load="imageload"
         />
       </div>
     </div>
@@ -40,11 +40,12 @@
 
     //   },
     methods: {
-      imgload() {
+      imageload() {
         //判断所有图片加载完了，进行一次回调就可以了
-        if (++this.currentValue === this.length) {
-          this.$emit("imageload");
-        }
+        // if (++this.currentValue === this.length) {
+        //   this.$emit("imageload");
+        // }
+        this.$emit("detailImageLoad");
       }
     },
     watch: {
